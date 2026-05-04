@@ -2,7 +2,7 @@ import secrets
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from core.db import SessionLocal
+from app.core.db import SessionLocal
 from models.api_key import APIKey
 
 router = APIRouter(prefix="/api-keys", tags=["API Keys"])

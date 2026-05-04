@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.sql import func
-from core.db import Base
+from app.core.db import Base
 
 class APIKey(Base):
     __tablename__ = "api_keys"

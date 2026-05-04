@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from core.db import SessionLocal
-from models.location import State, District, SubDistrict, Village
-from core.security_api import verify_api_key   # 🔥 ADD THIS
+from app.core.db import SessionLocal
+from app.models.location import State, District, SubDistrict, Village
+from app.core.security_api import verify_api_key
 
 router = APIRouter(prefix="/location", tags=["Location"])
 
@@ -24,7 +24,7 @@ def get_db():
 @router.get("/states")
 def get_states(
     db: Session = Depends(get_db),
-    api=Depends(verify_api_key)   # 🔐 ADD
+    api=Depends(verify_api_key)
 ):
     return db.query(State).all()
 
@@ -35,7 +35,7 @@ def get_states(
 def get_districts(
     state_id: int,
     db: Session = Depends(get_db),
-    api=Depends(verify_api_key)   # 🔐 ADD
+    api=Depends(verify_api_key)
 ):
     return db.query(District).filter(District.state_id == state_id).all()
 
@@ -46,7 +46,7 @@ def get_districts(
 def get_subdistricts(
     district_id: int,
     db: Session = Depends(get_db),
-    api=Depends(verify_api_key)   # 🔐 ADD
+    api=Depends(verify_api_key)
 ):
     return db.query(SubDistrict).filter(SubDistrict.district_id == district_id).all()
 
@@ -57,7 +57,7 @@ def get_subdistricts(
 def get_villages(
     subdistrict_id: int,
     db: Session = Depends(get_db),
-    api=Depends(verify_api_key)   # 🔐 ADD
+    api=Depends(verify_api_key)
 ):
     return db.query(Village).filter(
         Village.sub_district_id == subdistrict_id
@@ -70,7 +70,7 @@ def get_villages(
 def search_location(
     q: str,
     db: Session = Depends(get_db),
-    api=Depends(verify_api_key)   # 🔐 ADD
+    api=Depends(verify_api_key)
 ):
     q = q.strip().lower()
 
@@ -84,6 +84,6 @@ def search_location(
 @router.get("/test")
 def test(
     db: Session = Depends(get_db),
-    api=Depends(verify_api_key)   # 🔐 ADD
+    api=Depends(verify_api_key)
 ):
     return db.query(Village).limit(10).all()
