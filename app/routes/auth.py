@@ -1,25 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 from app.core.db import SessionLocal
 from app.models.user import User
-from app.core.security import hash_password, verify_password, create_token
+from app.core.security import (
+    hash_password,
+    verify_password,
+    create_token
+)
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
-
-
-# ------------------ SCHEMA ------------------
-
-class UserCreate(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-
+router = APIRouter(
+    prefix="/auth",
+    tags=["Auth"]
+)
 
 # ------------------ DB ------------------
 
@@ -31,18 +25,39 @@ def get_db():
         db.close()
 
 
+# ------------------ REQUEST MODELS ------------------
+
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
 # ------------------ REGISTER ------------------
 
 @router.post("/register")
-def register(user_data: UserCreate, db: Session = Depends(get_db)):
+def register(
+    data: RegisterRequest,
+    db: Session = Depends(get_db)
+):
 
-    existing_user = db.query(User).filter(User.email == user_data.email).first()
+    existing_user = db.query(User).filter(
+        User.email == data.email
+    ).first()
+
     if existing_user:
-        raise HTTPException(status_code=400, detail="User already exists")
+        raise HTTPException(
+            status_code=400,
+            detail="User already exists"
+        )
 
     user = User(
-        email=user_data.email,
-        password=hash_password(user_data.password)
+        email=data.email,
+        password=hash_password(data.password)
     )
 
     db.add(user)
@@ -51,7 +66,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 
     return {
         "success": True,
-        "message": "User created successfully",
+        "message": "User registered successfully",
         "user_id": user.id
     }
 
@@ -59,20 +74,35 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 # ------------------ LOGIN ------------------
 
 @router.post("/login")
-def login(user_data: UserLogin, db: Session = Depends(get_db)):
+def login(
+    data: LoginRequest,
+    db: Session = Depends(get_db)
+):
 
-    user = db.query(User).filter(User.email == user_data.email).first()
+    user = db.query(User).filter(
+        User.email == data.email
+    ).first()
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
 
-    if not verify_password(user_data.password, user.password):
-        raise HTTPException(status_code=401, detail="Invalid password")
+    if not verify_password(
+        data.password,
+        user.password
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid password"
+        )
 
-    token = create_token({"user_id": user.id})
+    token = create_token({
+        "user_id": user.id
+    })
 
     return {
         "success": True,
-        "message": "Login successful",
         "token": token
     }

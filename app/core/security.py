@@ -1,21 +1,25 @@
 from passlib.context import CryptContext
 from jose import jwt
-import datetime
+from datetime import datetime, timedelta, timezone
 
-SECRET_KEY = "secret123"
+SECRET_KEY = "secret123"   # ⚠️ later .env me daalna
 ALGORITHM = "HS256"
 
-pwd_context = CryptContext(schemes=["bcrypt"])
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 def hash_password(password: str):
     return pwd_context.hash(password)
 
+
 def verify_password(password: str, hashed_password: str):
     return pwd_context.verify(password, hashed_password)
 
+
 def create_token(data: dict):
     to_encode = data.copy()
-    to_encode.update({
-        "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=24)
-    })
+    expire = datetime.now(timezone.utc) + timedelta(hours=24)
+
+    to_encode.update({"exp": expire})
+
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

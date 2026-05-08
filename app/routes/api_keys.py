@@ -3,9 +3,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.core.db import SessionLocal
-from models.api_key import APIKey
+from app.models.api_key import APIKey   # ✅ FIXED
 
 router = APIRouter(prefix="/api-keys", tags=["API Keys"])
+
 
 def get_db():
     db = SessionLocal()
@@ -13,6 +14,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 @router.post("/generate")
 def generate_api_key(user_id: int, db: Session = Depends(get_db)):

@@ -6,8 +6,6 @@ from app.models.api_key import APIKey
 from app.models.usage import Usage
 
 
-# ------------------ DB ------------------
-
 def get_db():
     db = SessionLocal()
     try:
@@ -15,8 +13,6 @@ def get_db():
     finally:
         db.close()
 
-
-# ------------------ VERIFY API KEY ------------------
 
 def verify_api_key(
     request: Request,
@@ -28,14 +24,14 @@ def verify_api_key(
     if not api:
         raise HTTPException(status_code=401, detail="Invalid API Key")
 
-    # ------------------ LOG USAGE ------------------
-
-    usage = Usage(
-        api_key_id=api.id,
-        endpoint=request.url.path   # 🔥 dynamic endpoint
-    )
-
-    db.add(usage)
-    db.commit()
+    try:
+        usage = Usage(
+            api_key_id=api.id,
+            endpoint=request.url.path
+        )
+        db.add(usage)
+        db.commit()
+    except:
+        db.rollback()
 
     return api
