@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
@@ -14,6 +15,10 @@ router = APIRouter(
     prefix="/auth",
     tags=["Auth"]
 )
+
+# ------------------ SECURITY ------------------
+
+security = HTTPBearer()
 
 # ------------------ DB ------------------
 

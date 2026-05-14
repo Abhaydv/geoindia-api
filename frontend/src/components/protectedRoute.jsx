@@ -4,10 +4,14 @@ function ProtectedRoute({ children }) {
 
   const token = localStorage.getItem("token");
 
+  // TOKEN CHECK
+
   if (!token) {
 
     return <Navigate to="/" />;
   }
+
+  // VALID USER
 
   return children;
 }
